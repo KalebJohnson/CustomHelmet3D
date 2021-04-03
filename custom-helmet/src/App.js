@@ -1,8 +1,9 @@
 import './index.css';
-import React , { useState, useRef} from 'react';
+import React , { useState, useRef, useEffect} from 'react';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Canvas, useFrame, extend, useThree } from 'react-three-fiber';
 import { useSpring, animated } from 'react-spring-three';
+import { GTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 extend({OrbitControls})
 
@@ -21,7 +22,12 @@ const Controls = () => {
     />
   )
 }
-
+const helmet = () => {
+  const [model, setmodel] = useState()
+  useEffect(() => {
+    new GTFLoader().load("", setmodel)
+  })
+}
 const Plane = () => (
   <mesh rotation={[-Math.PI / 2 , 0, 0]} position={[0, -0.5, 0]}>
     <planeBufferGeometry attach="geometry" args={[50,50]} />
@@ -37,10 +43,10 @@ const Box = () => {
     scale: active? [1.5, 1.5, 1.5] : [1,1,1],
     color: hovered ? "orange" : "grey",
   })
-
   useFrame (() => {
     meshRef.current.rotation.y += 0.01
   })
+
 
   return (
     <animated.mesh
@@ -51,14 +57,15 @@ const Box = () => {
       onClick={() => setActive(!active)}
       scale={props.scale}
       >
+        
       <ambientLight/>
       <spotLight position={[0,2,10]} penumbra={1}/>
       <boxBufferGeometry 
         attach="geometry"
-        arcs={[1,1,1]}
+        arcs={1,1,1}
       />
-      
-      <animated.meshPhysicalMaterial attach="material" color={props.color}/>
+    
+      <animated.meshPhongMaterial attach="material" color={props.color}/>
     </animated.mesh>
   )
 }
