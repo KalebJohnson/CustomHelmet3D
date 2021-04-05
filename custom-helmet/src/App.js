@@ -3,7 +3,8 @@ import React , { useState, useRef, useEffect} from 'react';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Canvas, useFrame, extend, useThree } from 'react-three-fiber';
 import { useSpring, animated } from 'react-spring-three';
-import { GTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+
 
 extend({OrbitControls})
 
@@ -22,60 +23,34 @@ const Controls = () => {
     />
   )
 }
-const helmet = () => {
+const Helmet = () => {
   const [model, setmodel] = useState()
   useEffect(() => {
-    new GTFLoader().load("", setmodel)
-  })
+    new GLTFLoader().load('/AGV-Pista-GP-R.gltf', setmodel)
+  },[])
+
+  return  model ?
+  <animated.mesh>
+    <primitive object={model.scene}/>
+    <spotLight position={[5,50,25]} penumbra={1}/>
+    <spotLight position={[0,-5,0]} penumbra={1}/>
+  </animated.mesh>
+   : null
+  
 }
 const Plane = () => (
-  <mesh rotation={[-Math.PI / 2 , 0, 0]} position={[0, -0.5, 0]}>
-    <planeBufferGeometry attach="geometry" args={[50,50]} />
-    <meshPhysicalMaterial attach="material" color="black" reflectivity/>
+  <mesh rotation={[-Math.PI / 2 , 0, 0]} position={[0, -7, 0]}>
+    <boxBufferGeometry  attach="geometry" args={[200,200]} />
+    <meshPhysicalMaterial attach="material" color="red" receiveShadow/>
   </mesh>
 )
 
-const Box = () => {
-  const meshRef = useRef()
-  const [ hovered, setHovered] = useState(false);
-  const [ active, setActive] = useState(false);
-  const props = useSpring({
-    scale: active? [1.5, 1.5, 1.5] : [1,1,1],
-    color: hovered ? "orange" : "grey",
-  })
-  useFrame (() => {
-    meshRef.current.rotation.y += 0.01
-  })
-
-
-  return (
-    <animated.mesh
-      castShadow
-      ref={meshRef}
-      onPointerOver={() => setHovered(true)} 
-      onPointerOut={() => setHovered(false)}
-      onClick={() => setActive(!active)}
-      scale={props.scale}
-      >
-        
-      <ambientLight/>
-      <spotLight position={[0,2,10]} penumbra={1}/>
-      <boxBufferGeometry 
-        attach="geometry"
-        arcs={1,1,1}
-      />
-    
-      <animated.meshPhongMaterial attach="material" color={props.color}/>
-    </animated.mesh>
-  )
-}
 
 function App() {
   return (
-  <Canvas camera={{ position: [0,0,5] }}>
-    <fog attach="fog" args={["grey", 5, 20]}/>
+  <Canvas shadowMap camera={{ position: [0,0,5] }}>
     <Controls></Controls>
-    <Box></Box>
+    <Helmet/>
     <Plane></Plane>
   </Canvas>
   );
